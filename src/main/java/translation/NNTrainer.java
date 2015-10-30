@@ -19,15 +19,22 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
+ * Test class.
  * Created by Benjamin on 15/10/12.
  */
 public class NNTrainer {
     public static void main(String[] args) {
+        // The Word2Vec txt files.
         String sourceModelPath = "./source.txt";
         String targetModelPath = "./target.txt";
-        int threshold = 10;
+        // The rows of the data set. Should be greater than the training data set.
+        int threshold = 3;
+        // Get the Word2Vec models from the txt files.
         WordVectors sourceModel = null;
         WordVectors targetModel = null;
+        // Creating the training data. Only three rows.
+        // First word is the source word, second word is the target word.
+        // Using the INDArray of these words to be the training data and the labels.
         List<WordPair> wordPairList = new ArrayList<WordPair>();
         wordPairList.add(new WordPair("frowning", "frowning"));
         wordPairList.add(new WordPair("Reserve", "Reserve"));
@@ -39,7 +46,8 @@ public class NNTrainer {
             e.printStackTrace();
         }
 
-        int batchSize = 10;
+        // Training the net.
+        int batchSize = 1;
         int seed = 123;
 
         MyDataSetIterator iter = new MyDataSetIterator(batchSize, threshold, new MyDataFetcher(sourceModel,
@@ -82,8 +90,10 @@ public class NNTrainer {
 
             net.fit(iter);
         }
+        // This line set the bias to zeros.
 //        net.getLayer(0).setParam(DefaultParamInitializer.BIAS_KEY,Nd4j.zeros(1,100));
 
+        // Output.
         System.out.println("Network parameters:");
         Map<String, INDArray> paras = net.getLayer(0).paramTable();
         System.out.println(net.params().toString());
@@ -92,6 +102,7 @@ public class NNTrainer {
         System.out.println("Biases:");
         System.out.println(paras.get("b"));
         System.out.println(paras.get("b").length());
+        // The three test words.
         String testSourceWord = "frowning";
         String testSourceWord2 = "Reserve";
         String testSourceWord3 = "undermining";

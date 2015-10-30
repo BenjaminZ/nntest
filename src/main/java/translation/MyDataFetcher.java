@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * My simple data fetcher. Put the INDArray from the source word and the INDArray from the target word into a DataSet.
+ * The INDArrays are from the sourceModel and targetModel, which are the Word2Vec models.
  * Created by Benjamin on 15/10/12.
  */
 public class MyDataFetcher extends BaseDataFetcher {
