@@ -6,6 +6,8 @@ import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.Updater;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -58,22 +60,31 @@ public class NNTrainer {
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
+//                .l1(1e-1)
+//                .l2(1e-2)
+//                .regularization(true)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .iterations(1)
                 .constrainGradientToUnitNorm(true)
                 .learningRate(1e-6)
                 .momentum(0.5)
                 .momentumAfter(Collections.singletonMap(3, 0.9))
-                .useDropConnect(true)
-                .list(1)
-//                .layer(0, new DenseLayer.Builder()
-//                        .nIn(inputNum)
-//                        .nOut(100)
-//                        .activation("relu")
-//                        .weightInit(WeightInit.XAVIER)
-//                        .build())
-                .layer(0, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .list(3)
+                .layer(0, new DenseLayer.Builder()
                         .nIn(inputNum)
+                        .nOut(200)
+                        .activation("relu")
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
+                .layer(1, new DenseLayer.Builder()
+                        .nIn(200)
+                        .nOut(200)
+                        .activation("relu")
+                        .weightInit(WeightInit.XAVIER)
+                        .build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                        .updater(Updater.NESTEROVS)
+                        .nIn(200)
                         .nOut(outputNum)
                         .activation("identity")
                         .weightInit(WeightInit.XAVIER)
@@ -96,9 +107,9 @@ public class NNTrainer {
         // Output.
         System.out.println("Network parameters:");
         Map<String, INDArray> paras = net.getLayer(0).paramTable();
-        System.out.println(net.params().toString());
-        System.out.println("Weights:");
-        System.out.println(paras.get("W"));
+//        System.out.println(net.params().toString());
+//        System.out.println("Weights:");
+//        System.out.println(paras.get("W"));
         System.out.println("Biases:");
         System.out.println(paras.get("b"));
         System.out.println(paras.get("b").length());
@@ -117,7 +128,7 @@ public class NNTrainer {
         System.out.println(Arrays.toString(net.output(testArray).data().asFloat()));
         System.out.println(Arrays.toString(net.output(testArray2).data().asFloat()));
         System.out.println(Arrays.toString(net.output(testArray3).data().asFloat()));
-
+        System.out.println("Actual arrays: are the same as inputs.");
 //        try {
 //            OutputStream fos = Files.newOutputStream(Paths.get("coefficients.bin"));
 //            DataOutputStream dos = new DataOutputStream(fos);
